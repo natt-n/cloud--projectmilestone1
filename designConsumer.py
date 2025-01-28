@@ -22,9 +22,9 @@ print(f"Listening for messages on {subscription_path}..\n")
 
 # A callback function for handling received messages
 def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-    # convert from bytes to string (deserialization)
-    message_data = str(message.data)
-    
+    # convert to dictionary (deserialization)
+    message_data = json.loads(message.data.decode('utf-8'));
+
     print("Consumed record with value : {}" .format(message_data))
    
    # Report To Google Pub/Sub the successful processed of the received messages

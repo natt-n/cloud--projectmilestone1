@@ -2,6 +2,9 @@ from google.cloud import pubsub_v1      # pip install google-cloud-pubsub  ##to 
 import glob                             # for searching for json file 
 import json
 import os 
+import random
+import numpy as np                      # pip install numpy    ##to install
+import time
 import csv
 
 # Search the current directory for the JSON file (including the service account key) 
@@ -18,7 +21,7 @@ publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_name)
 print(f"Published messages with ordering keys to {topic_path}.")
 
-#read Labels.csv
+#read csv
 keysSaved = False
 rowDict = {}
 keys = []
@@ -35,19 +38,23 @@ with open('Labels.csv', newline='') as csvfile:
 
         #save row into a dictionary
         i = 0
-        message = ''
         for key in keys:
-            rowDict[key] = row[i]
+            rowDict[str(key)] = str(row[i])
             i += 1
-            message += (key + ":" + rowDict[key] + " ")
-
-        #serialize dictionary
-        message = str(message).encode('utf-8')
-
-        # send the value
-        print("Producing a record: {}".format(message))    
-        future = publisher.publish(topic_path, message)
-    
-        #ensure that the publishing has been completed successfully
-        future.result()
+            print(key + ":" + rowDict[key])
         
+        message = json.dumps(rowDict).encode('utf-8') # serialize the message
+    
+        try:    
+        
+            future = publisher.publish(topic_path, message);
+        
+            #ensure that the publishing has been completed successfully
+            future.result()    
+            print("The messages {} has been published successfully".format(rowDict))
+        except: 
+            print("Failed to publish the message")
+    
+    time.sleep(.5)   # wait for 0.5 second
+        
+      
